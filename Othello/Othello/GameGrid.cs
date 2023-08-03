@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
 using System.Collections.Generic;
+using System.Data.Common;
 
 class GameGrid
 {
@@ -30,6 +31,156 @@ class GameGrid
             Console.WriteLine("  ----------------");
         }
         Console.WriteLine();
+    }
+
+    public bool IsEmpty(int InputColumn, int InputRow)
+    {
+        if(Board[InputRow, InputColumn] == 0)
+        {
+            return true;
+        }
+        else
+        { 
+            return false;
+        }
+    }
+
+    public bool IsValidSpot(int Column, int Row, bool isBlack)
+    {
+        int DiscColor;
+        int OpponentColor;
+
+        if (isBlack)
+        {
+            DiscColor = 1;
+            OpponentColor = 2;
+        }
+        else
+        {
+            DiscColor = 2;
+            OpponentColor = 1;
+        }
+
+        Dictionary<string, int> Neighbours = new Dictionary<string, int>();
+
+        Neighbours.Add("North", Board[Row - 1, Column]);
+        Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
+        Neighbours.Add("East", Board[Row, Column + 1]);
+        Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
+        Neighbours.Add("South", Board[Row + 1, Column]);
+        Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
+        Neighbours.Add("West", Board[Row, Column - 1]);
+        Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
+
+        foreach (var color in Neighbours)
+        {
+            if (color.Value == OpponentColor)
+            {
+                if (color.Key.Contains("North"))
+                {
+                    if (color.Key.Contains("East"))
+                    {
+                        int i = 1;
+                        while (Board[Row - 1 - i, Column + 1 + i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row - 1 - i, Column + 1 + i] == DiscColor)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (color.Key.Contains("West"))
+                    {
+                        int i = 1;
+                        while (Board[Row - 1 - i, Column - 1 - i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row - 1 - i, Column - 1 - i] == DiscColor)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        int i = 1;
+                        while (Board[Row - 1 - i, Column] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row - 1 - i, Column] == DiscColor)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (color.Key.Contains("South"))
+                {
+                    if (color.Key.Contains("East"))
+                    {
+                        int i = 1;
+                        while (Board[Row + 1 + i, Column + 1 + i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row + 1 + i, Column + 1 + i] == DiscColor)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (color.Key.Contains("West"))
+                    {
+                        int i = 1;
+                        while (Board[Row + 1 + i, Column - 1 - i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row + 1 + i, Column - 1 - i] == DiscColor)
+                        {
+                            return true;
+                        }
+                    }
+                    else
+                    {
+                        int i = 1;
+                        while (Board[Row + 1 + i, Column] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row + 1 + i, Column] == DiscColor)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                if (color.Key == "East")
+                {
+                    int i = 1;
+                    while (Board[Row, Column + 1 + i] == OpponentColor)
+                    {
+                        i++;
+                    }
+                    if (Board[Row, Column + 1 + i] == DiscColor)
+                    {
+                        return true;
+                    }
+                }
+                if (color.Key == "West")
+                {
+                    int i = 1;
+                    while (Board[Row, Column - 1 - i] == OpponentColor)
+                    {
+                        i++;
+                    }
+                    if (Board[Row, Column - 1 - i] == DiscColor)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public void UpdateGameBoard(int Column, int Row, bool isBlack)
@@ -64,8 +215,6 @@ class GameGrid
 
         Dictionary<string, int> Neighbours = new Dictionary<string, int>();
 
-        if (Row < 7 && Row > 0 && Column < 7 && Column > 0)
-        {
             Neighbours.Add("North", Board[Row - 1, Column]);
             Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
             Neighbours.Add("East", Board[Row, Column + 1]);
@@ -74,51 +223,6 @@ class GameGrid
             Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
             Neighbours.Add("West", Board[Row, Column - 1]);
             Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
-        }
-        else if (Row == 7 && Column == 7)
-        {
-            Neighbours.Add("North", Board[Row - 1, Column]);
-            Neighbours.Add("West", Board[Row, Column - 1]);
-            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
-        }
-        else if (Row == 0 && Column == 0) 
-        {
-            Neighbours.Add("South", Board[Row + 1, Column]);
-            Neighbours.Add("East", Board[Row, Column + 1]);
-            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
-        }
-        else if (Row == 7 && Column < 7 && Column > 0)
-        {
-            Neighbours.Add("North", Board[Row - 1, Column]);
-            Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
-            Neighbours.Add("East", Board[Row, Column + 1]);
-            Neighbours.Add("West", Board[Row, Column - 1]);
-            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
-        }
-        else if (Row == 0 && Column < 7 && Column > 0)
-        {
-            Neighbours.Add("East", Board[Row, Column + 1]);
-            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
-            Neighbours.Add("South", Board[Row + 1, Column]);
-            Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
-            Neighbours.Add("West", Board[Row, Column - 1]);
-        }
-        else if (Column == 0 && Row < 7 && Row > 0)
-        {
-            Neighbours.Add("North", Board[Row - 1, Column]);
-            Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
-            Neighbours.Add("East", Board[Row, Column + 1]);
-            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
-            Neighbours.Add("South", Board[Row + 1, Column]);
-        }
-        else if (Column == 7 && Row < 7 && Row > 0)
-        {
-            Neighbours.Add("North", Board[Row - 1, Column]);
-            Neighbours.Add("South", Board[Row + 1, Column]);
-            Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
-            Neighbours.Add("West", Board[Row, Column - 1]);
-            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
-        }
 
         foreach (var color in Neighbours)
         {

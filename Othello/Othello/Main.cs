@@ -16,11 +16,31 @@
                 while(Turn < 60)
                 {
                     Game.PrintGameBoard();
-                    Console.Write("Enter X-Coordinate: ");
-                    int InputColumn = Convert.ToInt32(Console.ReadLine());
-                    Console.Write("Enter Y-Coordinate: ");
-                    int InputRow = Convert.ToInt32(Console.ReadLine());
-                    Game.UpdateGameBoard(InputColumn, InputRow, PlayerTurn);
+                    int InputRow = 4;
+                    int InputCol = 4;
+                    
+                    while(!Game.IsEmpty(InputCol, InputRow) || !Game.IsValidSpot(InputCol, InputRow, PlayerTurn))
+                    {
+                        Console.Write("Enter X-Coordinate: ");
+                        InputCol = Convert.ToInt32(Console.ReadLine());
+                        while (InputCol < 1 || InputCol > 8)
+                        {
+                            Console.Write("Enter X-Coordinate: ");
+                            InputCol = Convert.ToInt32(Console.ReadLine());
+                        }
+
+                        Console.Write("Enter Y-Coordinate: ");
+                        InputRow = Convert.ToInt32(Console.ReadLine());
+                        while (InputRow < 1 || InputRow > 8)
+                        {
+                            Console.Write("Enter Y-Coordinate: ");
+                            InputRow = Convert.ToInt32(Console.ReadLine());
+                        }
+
+                    }
+
+                    Console.Write('\n');
+                    Game.UpdateGameBoard(InputCol, InputRow, PlayerTurn);
                     PlayerTurn = !PlayerTurn;
                     Turn++;
                 }
