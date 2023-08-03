@@ -9,11 +9,21 @@ class GameGrid
     {
         Console.WriteLine("  1 2 3 4 5 6 7 8");
         Console.WriteLine();
+        int ScoreBlack = 0;
+        int ScoreWhite = 0;
 
         for (int i = 1; i < 9; i++)
         {
             for (int x = 1; x < 9; x++)
             {
+                if(Board[i, x] == 1)
+                {
+                    ScoreBlack++;
+                }
+                if (Board[i, x] == 2)
+                {
+                    ScoreWhite++;
+                }
                 if (x < 2)
                 {
                     Console.Write(i + " ");
@@ -31,6 +41,25 @@ class GameGrid
             Console.WriteLine("  ----------------");
         }
         Console.WriteLine();
+        Console.WriteLine("Black Score: " + ScoreBlack);
+        Console.WriteLine("White Score: " + ScoreWhite);
+
+    }
+
+    public bool PossibleMoves(int InputCol, int InputRow, bool PlayerTurn)
+    {
+        Dictionary<int, int> EmptySpots = new Dictionary<int, int>();
+        for (int i = 1; i < 9; i++)
+        {
+            for (int x = 1; x < 9; x++)
+            {
+                if (IsValidSpot(i, x, PlayerTurn))
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     public bool IsEmpty(int InputColumn, int InputRow)
