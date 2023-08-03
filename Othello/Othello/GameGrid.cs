@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Security.Cryptography.X509Certificates;
+using System.Collections.Generic;
 
 class GameGrid
 {
     public void PrintGameBoard()
     {
-        Console.WriteLine("  0 1 2 3 4 5 6 7");
+        Console.WriteLine("  1 2 3 4 5 6 7 8");
         Console.WriteLine();
 
-        for (int i = 0; i < 8; i++)
+        for (int i = 1; i < 9; i++)
         {
-            for (int x = 0; x < 8; x++)
+            for (int x = 1; x < 9; x++)
             {
-                if (x < 1)
+                if (x < 2)
                 {
                     Console.Write(i + " ");
                 }
                 Console.Write(Board[i, x]);
-                if (x < 7)
+                if (x < 8)
                 {
                     Console.Write("|");
                 }
@@ -36,13 +37,11 @@ class GameGrid
         if (isBlack)
         {
             Board[Row, Column] = 1;
-            Console.WriteLine("On musta: " + isBlack);
             TurnDisks(Row, Column, isBlack);
         }
         else
         {
             Board[Row, Column] = 2;
-            Console.WriteLine("On musta: " + isBlack);
             TurnDisks(Row, Column, isBlack);
         }
     }
@@ -63,182 +62,209 @@ class GameGrid
             OpponentColor = 1;
         }
 
-        for (int i = 0; i < 8; i++)
+        Dictionary<string, int> Neighbours = new Dictionary<string, int>();
+
+        if (Row < 7 && Row > 0 && Column < 7 && Column > 0)
         {
-            int z = 1;
-            while (Board[Row, Column - z] == OpponentColor && Column - z > 0)
-            {
-                z++;
-                if (Board[Row, Column - z] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row, Column - z] == DiscColor)
-                {
-                    for (int TurnedDiscs = 0; TurnedDiscs < z; z--)
-                    {
-                        Board[Row, Column - z + 1] = DiscColor;
-                        z--;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-                
-            while (Board[Row + z, Column] == OpponentColor && Row + z < 7)
-            {
-                z++;
-                if (Board[Row + z, Column] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row + z, Column] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
-                    {
-                        Board[Row + z - 1, Column] = DiscColor;
-                        z--;
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
+            Neighbours.Add("North", Board[Row - 1, Column]);
+            Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
+            Neighbours.Add("East", Board[Row, Column + 1]);
+            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
+            Neighbours.Add("South", Board[Row + 1, Column]);
+            Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
+            Neighbours.Add("West", Board[Row, Column - 1]);
+            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
+        }
+        else if (Row == 7 && Column == 7)
+        {
+            Neighbours.Add("North", Board[Row - 1, Column]);
+            Neighbours.Add("West", Board[Row, Column - 1]);
+            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
+        }
+        else if (Row == 0 && Column == 0) 
+        {
+            Neighbours.Add("South", Board[Row + 1, Column]);
+            Neighbours.Add("East", Board[Row, Column + 1]);
+            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
+        }
+        else if (Row == 7 && Column < 7 && Column > 0)
+        {
+            Neighbours.Add("North", Board[Row - 1, Column]);
+            Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
+            Neighbours.Add("East", Board[Row, Column + 1]);
+            Neighbours.Add("West", Board[Row, Column - 1]);
+            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
+        }
+        else if (Row == 0 && Column < 7 && Column > 0)
+        {
+            Neighbours.Add("East", Board[Row, Column + 1]);
+            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
+            Neighbours.Add("South", Board[Row + 1, Column]);
+            Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
+            Neighbours.Add("West", Board[Row, Column - 1]);
+        }
+        else if (Column == 0 && Row < 7 && Row > 0)
+        {
+            Neighbours.Add("North", Board[Row - 1, Column]);
+            Neighbours.Add("NorthEast", Board[Row - 1, Column + 1]);
+            Neighbours.Add("East", Board[Row, Column + 1]);
+            Neighbours.Add("SouthEast", Board[Row + 1, Column + 1]);
+            Neighbours.Add("South", Board[Row + 1, Column]);
+        }
+        else if (Column == 7 && Row < 7 && Row > 0)
+        {
+            Neighbours.Add("North", Board[Row - 1, Column]);
+            Neighbours.Add("South", Board[Row + 1, Column]);
+            Neighbours.Add("SouthWest", Board[Row + 1, Column - 1]);
+            Neighbours.Add("West", Board[Row, Column - 1]);
+            Neighbours.Add("NorthWest", Board[Row - 1, Column - 1]);
+        }
 
-            while (Board[Row - z, Column] == OpponentColor && Row - z > 0)
+        foreach (var color in Neighbours)
+        {
+            if (color.Value == OpponentColor)
             {
-                z++;
-                if (Board[Row - z, Column] == OpponentColor)
+                if (color.Key.Contains("North"))
                 {
-                    continue;
-                }
-                else if (Board[Row - z, Column] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
+                    if (color.Key.Contains("East"))
                     {
-                        Board[Row - z + 1, Column] = DiscColor;
-                        z--;
+                        int i = 1;
+                        while (Board[Row - 1 - i, Column + 1 + i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row - 1 - i, Column + 1 + i] == DiscColor)
+                        {
+                            for (int x = i; x > 0; x--)
+                            {
+                                Board[Row - x, Column + x] = DiscColor;
+                            }
+                        }
+                    }
+                    else if (color.Key.Contains("West"))
+                    {
+                        int i = 1;
+                        while (Board[Row - 1 - i, Column - 1 - i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row - 1 - i, Column - 1 - i] == DiscColor)
+                        {
+                            for (int x = i; x > 0; x--)
+                            {
+                                Board[Row - x, Column - x] = DiscColor;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int i = 1;
+                        while (Board[Row - 1 - i, Column] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row - 1 - i, Column] == DiscColor)
+                        {
+                            for (int x = i; x > 0; x--)
+                            {
+                                Board[Row - x, Column] = DiscColor;
+                            }
+                        }
                     }
                 }
-                else
+                if (color.Key.Contains("South"))
                 {
-                    break;
-                }
-            }
-            while (Board[Row - z, Column + z] == OpponentColor && Column + z < 7 && Row - z > 0)
-            {
-                z++;
-                if (Board[Row - z, Column + z] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row - z, Column + z] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
+                    if (color.Key.Contains("East"))
                     {
-                        Board[Row - z + 1, Column + z - 1] = DiscColor;
-                        z--;
+                        int i = 1;
+                        while (Board[Row + 1 + i, Column + 1 + i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row + 1 + i, Column + 1 + i] == DiscColor)
+                        {
+                            for (int x = i; x > 0; x--)
+                            {
+                                Board[Row + x, Column + x] = DiscColor;
+                            }
+                        }
+                    }
+                    else if (color.Key.Contains("West"))
+                    {
+                        int i = 1;
+                        while (Board[Row + 1 + i, Column - 1 - i] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row + 1 + i, Column - 1 - i] == DiscColor)
+                        {
+                            for (int x = i; x > 0; x--)
+                            {
+                                Board[Row + x, Column - x] = DiscColor;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        int i = 1;
+                        while (Board[Row + 1 + i, Column] == OpponentColor)
+                        {
+                            i++;
+                        }
+                        if (Board[Row + 1 + i, Column] == DiscColor)
+                        {
+                            for (int x = i; x > 0; x--)
+                            {
+                                Board[Row + x, Column] = DiscColor;
+                            }
+                        }
                     }
                 }
-                else
+                if (color.Key == "East")
                 {
-                    break;
-                }
-            }
-            while (Board[Row - z, Column - z] == OpponentColor && Column - z > 0 && Row - z > 0)
-            {
-                z++;
-                if (Board[Row - z, Column - z] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row - z, Column - z] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
+                    int i = 1;
+                    while (Board[Row, Column + 1 + i] == OpponentColor)
                     {
-                        Board[Row - z + 1, Column - z + 1] = DiscColor;
-                        z--;
+                        i++;
+                    }
+                    if (Board[Row, Column + 1 + i] == DiscColor)
+                    {
+                        for (int x = i; x > 0; x--)
+                        {
+                            Board[Row, Column + x] = DiscColor;
+                        }
                     }
                 }
-                else
+                if (color.Key == "West")
                 {
-                    break;
-                }
-            }
-            while (Board[Row + z, Column + z] == OpponentColor && Row + z < 7 && Column + z < 7)
-            {
-                z++;
-                if (Board[Row + z, Column + z] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row + z, Column + z] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
+                    int i = 1;
+                    while (Board[Row, Column - 1 - i] == OpponentColor)
                     {
-                        Board[Row + z - 1, Column + z - 1] = DiscColor;
-                        z--;
+                        i++;
                     }
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            while (Board[Row, Column + z] == OpponentColor && Column + z < 7)
-            {
-                z++;
-                if (Board[Row, Column + z] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row, Column + z] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
+                    if (Board[Row, Column - 1 - i] == DiscColor)
                     {
-                        Board[Row, Column + z - 1] = DiscColor;
-                        z--;
+                        for (int x = i; x > 0; x--)
+                        {
+                            Board[Row, Column - x] = DiscColor;
+                        }
                     }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            while (Board[Row + z, Column - z] == OpponentColor && Row + z < 7 && Column - z > 0)
-            {
-                z++;
-                if (Board[Row + z, Column - z] == OpponentColor)
-                {
-                    continue;
-                }
-                else if (Board[Row + z, Column - z] == DiscColor)
-                {
-                    for (int d = 0; d < z; z--)
-                    {
-                        Board[Row + z - 1, Column - z + 1] = DiscColor;
-                        z--;
-                    }
-                }
-                else
-                {
-                    break;
                 }
             }
         }
     }
 
+ 
+
     private int[,] Board = {
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 2, 1, 0, 0, 0},
-                {0, 0, 0, 1, 2, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0},
-                {0, 0, 0, 0, 0, 0, 0, 0}};
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 2, 1, 0, 0, 0, 0},
+                {0, 0, 0, 0, 1, 2, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 0, 0, 0, 0, 0, 0},};
 }
