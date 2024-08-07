@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\Othello chip black.png" />
+    <None Remove="Assets\Othello chip white.png" />
+    <None Remove="Assets\Othello Gameboard.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\Othello chip black.png" />
+    <Resource Include="Assets\Othello chip white.png" />
+    <Resource Include="Assets\Othello Gameboard.png" />
+  </ItemGroup>
+
+</Project>

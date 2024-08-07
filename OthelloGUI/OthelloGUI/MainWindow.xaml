@@ -1,0 +1,120 @@
+﻿<Window x:Class="OthelloGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:OthelloGUI"
+        mc:Ignorable="d"
+        Title="Othello" Height="700" Width="900">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="700"/>
+            <ColumnDefinition Width="300"/>
+        </Grid.ColumnDefinitions>
+
+        <Canvas x:Name="TurnPanel"
+                HorizontalAlignment="Center"
+                Grid.Column="1"
+                Margin="0,10,0,-10">
+            <TextBlock FontSize="40"
+                       Text="Turn:"
+                       Height="60"
+                       Canvas.Left="-130"
+                       Canvas.Top="100"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+            <TextBlock FontSize="40"
+                       Text="Points:"
+                       Height="60"
+                       Canvas.Left="-130"
+                       Canvas.Top="240"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+            <Image x:Name="PlayerImage"
+                   Source="Assets/Othello chip Black.png"
+                   Height="60"
+                   Canvas.Left="-130"
+                   Canvas.Top="160"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"/>
+            <Image x:Name="BlackImage"
+                   Source="Assets/Othello chip Black.png"
+                   Height="60"
+                   Canvas.Left= "-130"
+                   Canvas.Top="300"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"/>
+            <Image x:Name="WhiteImage"
+                   Source="Assets/Othello chip White.png"
+                   Height="60"
+                   Canvas.Left= "-130"
+                   Canvas.Top="370"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"/>
+            <TextBlock FontSize="40"
+                       Text="2"
+                       Height="60"
+                       Canvas.Left="-40"
+                       Canvas.Top="300"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+            <TextBlock FontSize="40"
+                       Text="2"
+                       Height="60"
+                       Canvas.Left="-40"
+                       Canvas.Top="370"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+            <Button Content="Restart"
+                    FontSize="40"
+                    BorderBrush="Black"
+                    Canvas.Bottom="135"
+                    Canvas.Right="10"
+                    Click="Button_Click"/>
+        </Canvas>
+
+        <Canvas x:Name="GameCanvas"
+                Grid.Column="0"
+                Width="636"
+                Height="636">
+            <Canvas.Background>
+                <ImageBrush ImageSource="Assets/Othello Gameboard.png"/>
+            </Canvas.Background>
+            <UniformGrid x:Name="GameGrid"
+                         Width="606"
+                         Height="606"
+                         Rows="8"
+                         Columns="8"
+                         MouseDown="GameGrid_MouseDown"
+                         Canvas.Left="15"
+                         Canvas.Top="15" HorizontalAlignment="Left" VerticalAlignment="Center">
+                <UniformGrid.Background>
+                    <SolidColorBrush></SolidColorBrush>
+                </UniformGrid.Background>
+            </UniformGrid>
+        </Canvas>
+
+        <Canvas x:Name="WinnerScreen"
+                Grid.Column="0"
+                Width="636"
+                Height="636"
+                Visibility="Hidden">
+            <TextBlock FontSize="60"
+                       Text="Winner:"
+                       Height="80"
+                       Canvas.Left="160"
+                       Canvas.Top="270"
+                       HorizontalAlignment="Left"
+                       VerticalAlignment="Center"/>
+            <Image x:Name="WinnerImage"
+                   Height="60"
+                   Source="Assets/Othello chip Black.png"
+                   Canvas.Left="380"
+                   Canvas.Top="288">
+            </Image>
+
+        </Canvas>
+
+
+    </Grid>
+</Window>

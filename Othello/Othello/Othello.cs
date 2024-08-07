@@ -2,7 +2,7 @@
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Othello()
         {
             Console.WriteLine("Othello");
             Console.WriteLine();
