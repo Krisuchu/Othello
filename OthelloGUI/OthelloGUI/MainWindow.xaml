@@ -95,25 +95,25 @@
         </Canvas>
 
         <Canvas x:Name="WinnerScreen"
+                Background="white"
                 Grid.Column="0"
                 Width="636"
                 Height="636"
+                Opacity="0.50"
                 Visibility="Hidden">
-            <TextBlock FontSize="60"
-                       Text="Winner:"
-                       Height="80"
-                       Canvas.Left="160"
-                       Canvas.Top="270"
-                       HorizontalAlignment="Left"
-                       VerticalAlignment="Center"/>
-            <Image x:Name="WinnerImage"
-                   Height="60"
-                   Source="Assets/Othello chip Black.png"
-                   Canvas.Left="380"
-                   Canvas.Top="288">
-            </Image>
-
         </Canvas>
+        <TextBlock x:Name="WinnerText"
+                   FontSize="60"
+                   Text="Winner:"
+                   Height="80"
+                   Visibility="Hidden"
+                   Margin="210,0,280,0"/>
+        <Image x:Name="WinnerImage"
+                Height="60"
+                Source="Assets/Othello chip Black.png"
+                Visibility="Hidden"
+                Margin="420,0,200,0"/>
+
 
 
     </Grid>

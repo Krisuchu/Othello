@@ -48,12 +48,17 @@ namespace OthelloGUI
 
         private void OnGameEnded(Player player)
         {
-
+            WinnerScreen.Visibility = Visibility.Visible;
+            WinnerImage.Visibility = Visibility.Visible;
+            WinnerText.Visibility = Visibility.Visible;
         }
 
         private void OnGameRestarted()
         {
-            for(int row = 0; row < 8; row++)
+            WinnerScreen.Visibility = Visibility.Hidden;
+            WinnerImage.Visibility = Visibility.Hidden;
+            WinnerText.Visibility = Visibility.Hidden;
+            for (int row = 0; row < 8; row++)
             {
                 for(int col = 0; col < 8; col++)
                 {
