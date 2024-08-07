@@ -70,7 +70,7 @@
                     BorderBrush="Black"
                     Canvas.Bottom="135"
                     Canvas.Right="10"
-                    Click="Button_Click"/>
+                    Click="ResetButton_Click"/>
         </Canvas>
 
         <Canvas x:Name="GameCanvas"

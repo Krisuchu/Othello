@@ -53,7 +53,15 @@ namespace OthelloGUI
 
         private void OnGameRestarted()
         {
-
+            for(int row = 0; row < 8; row++)
+            {
+                for(int col = 0; col < 8; col++)
+                {
+                    imageControls[row, col].Source = null;
+                }
+            }
+            PlayerImage.Source = imageSources[gameState.CurrentPlayer];
+            SetupStartPosition();
         }
 
         // Asettaa pelilaudan jokaiseen ruutuun kuvan, joko valkoinen, musta tai tyhjä kuva.
@@ -68,7 +76,12 @@ namespace OthelloGUI
                     imageControls[row, col] = imageControl;
                 }
             }
-            imageControls[3,3].Source = imageSources[Player.White];
+            SetupStartPosition();
+        }
+
+        private void SetupStartPosition()
+        {
+            imageControls[3, 3].Source = imageSources[Player.White];
             imageControls[4, 4].Source = imageSources[Player.White];
             imageControls[3, 4].Source = imageSources[Player.Black];
             imageControls[4, 3].Source = imageSources[Player.Black];
@@ -83,9 +96,9 @@ namespace OthelloGUI
             gameState.MakeMove(row, col);
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
         {
-
+            gameState.Reset();
         }
     }
 }
