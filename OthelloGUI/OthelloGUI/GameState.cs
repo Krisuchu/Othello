@@ -40,7 +40,8 @@ namespace OthelloGUI
         // Funktio tarkastaa, onko tehtävä siirto laillinen
         private bool IsLegalMove(int r, int c)
         {
-            if (GameOver && GameGrid[r, c] != PlayerType.None)
+            Coordinates?.Invoke(r, c);
+            if (GameGrid[r, c] != PlayerType.None)
             {
                 return false;
             }
@@ -154,9 +155,10 @@ namespace OthelloGUI
 
             // Suoritetaan siirto pelin logiikan puolella ja lisätään tehtyjen siirtojen määrää
             GameGrid[r, c] = CurrentPlayer;
+            Turns++;
 
             // Kasvatetaan nykyisen pelaajan pistesaldoa yhdellä tämän asettaessa uuden nappulan laudalle.
-            if(CurrentPlayer == PlayerType.Black)
+            if (CurrentPlayer == PlayerType.Black)
             {
                 Black.Points++;
             }
@@ -164,7 +166,6 @@ namespace OthelloGUI
             {
                 White.Points++;
             }
-            Coordinates?.Invoke(r, c);
 
             // Käydään läpi kaikki pelilaudalla muutettavat nappulat ja
             // muokataan pelin pistetilannetta sen mukaan.
@@ -182,7 +183,6 @@ namespace OthelloGUI
                     White.Points++;
                 }
             }
-            Turns++;
 
             // Jos peli päättyy, suoritetaan vain viimeinen siirto GUI:n puolella
             if (IsGameOver())
@@ -227,8 +227,6 @@ namespace OthelloGUI
             GameOver = false;
             GameRestarted?.Invoke();
             UpdatePoints?.Invoke(Black.Points, White.Points);
-            
-
         }
     }
 }
