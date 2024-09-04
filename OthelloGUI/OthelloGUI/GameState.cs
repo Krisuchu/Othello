@@ -6,35 +6,33 @@ namespace OthelloGUI
 {
     public class GameState
     {
-        public Player[,] GameGrid { get; private set; }
-        public Player CurrentPlayer { get; private set; }
+        public PlayerType[,] GameGrid { get; private set; }
+        public PlayerType CurrentPlayer { get; private set; }
         public List<Tuple<int, int>> Discs = new List<Tuple<int, int>>();
         public List<Tuple<int, int>> Opponents = new List<Tuple<int, int>>();
-        public int BlackPoints { get; private set; }
-        public int WhitePoints { get; private set; }
+        Player Black = new Player(PlayerType.Black);
+        Player White = new Player(PlayerType.White);
         public int Turns { get; private set; }
         public bool GameOver { get; private set; }
-
-        // Action on valmis delegaatti ja yksinkertaisempi käyttää
+        
+        // Action on valmis delegaatti ja yksinkertaisempi käyttää.
         // Action määrittää toiminnon, jota voidaan käyttää kaikkialla ohjelmassa 
         // "tilaamalla" se, jonka jälkeen tilaavassa osassa ohjelmaa voidaan suorittaa toimintoja.
         public event Action<int, int>? MoveMade;
         public event Action<int, int>? UpdatePoints;
         public event Action<int, int>? Coordinates;
         public event Action? GameRestarted;
-        public event Action<Player>? GameEnded;
+        public event Action<PlayerType>? GameEnded;
 
         // Funktio luo Othello-pelilaudan alkutilanteen
         public GameState()
         {
-            GameGrid = new Player[8, 8];
-            GameGrid[3, 3] = Player.White;
-            GameGrid[4, 4] = Player.White;
-            GameGrid[3, 4] = Player.Black;
-            GameGrid[4, 3] = Player.Black;
-            BlackPoints = 2;
-            WhitePoints = 2;
-            CurrentPlayer = Player.Black;
+            GameGrid = new PlayerType[8, 8];
+            GameGrid[3, 3] = PlayerType.White;
+            GameGrid[4, 4] = PlayerType.White;
+            GameGrid[3, 4] = PlayerType.Black;
+            GameGrid[4, 3] = PlayerType.Black;
+            CurrentPlayer = PlayerType.Black;
             Turns = 0;
             GameOver = false;
         }
@@ -42,7 +40,7 @@ namespace OthelloGUI
         // Funktio tarkastaa, onko tehtävä siirto laillinen
         private bool IsLegalMove(int r, int c)
         {
-            if (GameOver && GameGrid[r, c] != Player.None)
+            if (GameOver && GameGrid[r, c] != PlayerType.None)
             {
                 return false;
             }
@@ -85,7 +83,7 @@ namespace OthelloGUI
             int c = col + y;
             bool areFlippedTokens = false;
             
-            while (IsInsideBoard(r, c) && GameGrid[r, c] != Player.None)
+            while (IsInsideBoard(r, c) && GameGrid[r, c] != PlayerType.None)
             {
                 // Onko seuraava nappula edelleen vastustajan värinen liikuttaessa kyseiseen suuntaan
                 if (GameGrid[r, c] != CurrentPlayer)
@@ -126,20 +124,20 @@ namespace OthelloGUI
         // Funktio vaihtaa vuorossa olevan pelaajan
         private void SwitchPlayer()
         {
-            if(CurrentPlayer == Player.Black)
+            if(CurrentPlayer == PlayerType.Black)
             {
-                CurrentPlayer = Player.White;
+                CurrentPlayer = PlayerType.White;
             }
             else
             {
-                CurrentPlayer = Player.Black;
+                CurrentPlayer = PlayerType.Black;
             }
         }
 
         // Funktio tarkastaa, onko peli syytä lopettaa eri tilanteissa
         private bool IsGameOver()
         {
-            if(BlackPoints == 0 || WhitePoints == 0 || Turns == 60)
+            if(Black.Points == 0 || White.Points == 0 || Turns == 60)
             {
                 return true;
             }
@@ -156,19 +154,32 @@ namespace OthelloGUI
 
             // Suoritetaan siirto pelin logiikan puolella ja lisätään tehtyjen siirtojen määrää
             GameGrid[r, c] = CurrentPlayer;
+
+            // Kasvatetaan nykyisen pelaajan pistesaldoa yhdellä tämän asettaessa uuden nappulan laudalle.
+            if(CurrentPlayer == PlayerType.Black)
+            {
+                Black.Points++;
+            }
+            else
+            {
+                White.Points++;
+            }
             Coordinates?.Invoke(r, c);
+
+            // Käydään läpi kaikki pelilaudalla muutettavat nappulat ja
+            // muokataan pelin pistetilannetta sen mukaan.
             foreach(var disc in Discs)
             {
                 GameGrid[disc.Item1, disc.Item2] = CurrentPlayer;
-                if(CurrentPlayer == Player.Black)
+                if(CurrentPlayer == PlayerType.Black)
                 {
-                    BlackPoints++;
-                    WhitePoints--;
+                    Black.Points++;
+                    White.Points--;
                 }
                 else
                 {
-                    BlackPoints--;
-                    WhitePoints++;
+                    Black.Points--;
+                    White.Points++;
                 }
             }
             Turns++;
@@ -195,7 +206,7 @@ namespace OthelloGUI
                     MoveMade?.Invoke(disc.Item1, disc.Item2);
                 }
             }
-            UpdatePoints?.Invoke(BlackPoints, WhitePoints);
+            UpdatePoints?.Invoke(Black.Points, White.Points);
             Discs.Clear();
         }
 
@@ -204,18 +215,18 @@ namespace OthelloGUI
         {
             Opponents.Clear();
             Discs.Clear();
-            GameGrid = new Player[8, 8];
-            GameGrid[3, 3] = Player.White;
-            GameGrid[4, 4] = Player.White;
-            GameGrid[3, 4] = Player.Black;
-            GameGrid[4, 3] = Player.Black;
-            BlackPoints = 2;
-            WhitePoints = 2;
-            CurrentPlayer = Player.Black;
+            GameGrid = new PlayerType[8, 8];
+            GameGrid[3, 3] = PlayerType.White;
+            GameGrid[4, 4] = PlayerType.White;
+            GameGrid[3, 4] = PlayerType.Black;
+            GameGrid[4, 3] = PlayerType.Black;
+            Black.Points = 2;
+            White.Points = 2;
+            CurrentPlayer = PlayerType.Black;
             Turns = 0;
             GameOver = false;
             GameRestarted?.Invoke();
-            UpdatePoints?.Invoke(BlackPoints, WhitePoints);
+            UpdatePoints?.Invoke(Black.Points, White.Points);
             
 
         }

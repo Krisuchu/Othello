@@ -18,10 +18,10 @@ namespace OthelloGUI
 {
     public partial class MainWindow : Window
     {
-        private readonly Dictionary<Player, ImageSource> imageSources = new()
+        private readonly Dictionary<PlayerType, ImageSource> imageSources = new()
         {
-            { Player.Black, new BitmapImage(new Uri("pack://application:,,,/Assets/Othello chip black.png")) },
-            { Player.White, new BitmapImage(new Uri("pack://application:,,,/Assets/Othello chip white.png")) }
+            { PlayerType.Black, new BitmapImage(new Uri("pack://application:,,,/Assets/Othello chip black.png")) },
+            { PlayerType.White, new BitmapImage(new Uri("pack://application:,,,/Assets/Othello chip white.png")) }
         };
 
         // Luodaan 8x8 ruudukko kuvia, jotta pelilaudan tilaa voidaan päivittää visuaalisesti joko
@@ -44,7 +44,7 @@ namespace OthelloGUI
         // Päivittää pelilaudan tilanteen tehdyn liikkeen perusteella.
         private void OnMoveMade(int row, int col)
         {
-            Player player = gameState.GameGrid[row, col];
+            PlayerType player = gameState.GameGrid[row, col];
             imageControls[row, col].Source = imageSources[player];
             PlayerImage.Source = imageSources[gameState.CurrentPlayer];
             RestartButton.IsEnabled = true;
@@ -63,7 +63,7 @@ namespace OthelloGUI
         }
 
         // Näyttää pelin loppuruudun ja sen sisältämät tiedot pelin päättymisestä.
-        private void OnGameEnded(Player player)
+        private void OnGameEnded(PlayerType player)
         {
             WinnerScreen.Visibility = Visibility.Visible;
             WinnerImage.Visibility = Visibility.Visible;
@@ -107,10 +107,10 @@ namespace OthelloGUI
 
         private void SetupStartPosition()
         {
-            imageControls[3, 3].Source = imageSources[Player.White];
-            imageControls[4, 4].Source = imageSources[Player.White];
-            imageControls[3, 4].Source = imageSources[Player.Black];
-            imageControls[4, 3].Source = imageSources[Player.Black];
+            imageControls[3, 3].Source = imageSources[PlayerType.White];
+            imageControls[4, 4].Source = imageSources[PlayerType.White];
+            imageControls[3, 4].Source = imageSources[PlayerType.Black];
+            imageControls[4, 3].Source = imageSources[PlayerType.Black];
         }
 
         // Etsii pelilaudalla klikatun kohdan ja määrittää tämän perusteella x- ja y-koordinaatit
