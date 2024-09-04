@@ -36,16 +36,33 @@ namespace OthelloGUI
 
             gameState.GameRestarted += OnGameRestarted;
             gameState.MoveMade += OnMoveMade;
+            gameState.UpdatePoints += UpdatePoints;
             gameState.GameEnded += OnGameEnded;
+            gameState.Coordinates += UpdateCoordinates;
         }
 
+        // Päivittää pelilaudan tilanteen tehdyn liikkeen perusteella.
         private void OnMoveMade(int row, int col)
         {
             Player player = gameState.GameGrid[row, col];
             imageControls[row, col].Source = imageSources[player];
             PlayerImage.Source = imageSources[gameState.CurrentPlayer];
+            RestartButton.IsEnabled = true;
         }
 
+        private void UpdatePoints(int bPoints, int wPoints)
+        {
+            BlackPoints.Content = bPoints;
+            WhitePoints.Content = wPoints;
+        }
+
+        private void UpdateCoordinates(int bPoints, int wPoints)
+        {
+            xCoordinate.Content = wPoints + 1;
+            yCoordinate.Content = bPoints + 1;
+        }
+
+        // Näyttää pelin loppuruudun ja sen sisältämät tiedot pelin päättymisestä.
         private void OnGameEnded(Player player)
         {
             WinnerScreen.Visibility = Visibility.Visible;
@@ -53,11 +70,14 @@ namespace OthelloGUI
             WinnerText.Visibility = Visibility.Visible;
         }
 
+        // Palauttaa pelilaudan visuaaliset elementit pelin alkutilaan.
         private void OnGameRestarted()
         {
             WinnerScreen.Visibility = Visibility.Hidden;
             WinnerImage.Visibility = Visibility.Hidden;
             WinnerText.Visibility = Visibility.Hidden;
+            RestartButton.IsEnabled = false;
+
             for (int row = 0; row < 8; row++)
             {
                 for(int col = 0; col < 8; col++)
@@ -82,6 +102,7 @@ namespace OthelloGUI
                 }
             }
             SetupStartPosition();
+            RestartButton.IsEnabled = false;
         }
 
         private void SetupStartPosition()
@@ -92,6 +113,7 @@ namespace OthelloGUI
             imageControls[4, 3].Source = imageSources[Player.Black];
         }
 
+        // Etsii pelilaudalla klikatun kohdan ja määrittää tämän perusteella x- ja y-koordinaatit
         private void GameGrid_MouseDown(object sender, MouseButtonEventArgs e)
         {
             double squareSize = GameGrid.Width / 8;
