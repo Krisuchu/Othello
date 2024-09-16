@@ -24,6 +24,8 @@ namespace OthelloGUI
             { PlayerType.White, new BitmapImage(new Uri("pack://application:,,,/Assets/Othello chip white.png")) }
         };
 
+        readonly ImageSource Tie = new BitmapImage(new Uri("pack://application:,,,/Assets/Othello chip tie.png"));
+
         // Luodaan 8x8 ruudukko kuvia, jotta pelilaudan tilaa voidaan päivittää visuaalisesti joko
         // tyhjäksi, valkoiseksi tai mustaksi.
         private readonly Image[,] imageControls = new Image[8, 8];
@@ -36,9 +38,11 @@ namespace OthelloGUI
 
             gameState.GameRestarted += OnGameRestarted;
             gameState.MoveMade += OnMoveMade;
-            gameState.UpdatePoints += UpdatePoints;
+            gameState.UpdateGUI += UpdateGUI;
             gameState.GameEnded += OnGameEnded;
             gameState.Coordinates += UpdateCoordinates;
+            gameState.TieGame += OnTieGame;
+            gameState.ChangePlayerImage += ChangeImage;
         }
 
         // Päivittää pelilaudan tilanteen tehdyn liikkeen perusteella.
@@ -46,16 +50,25 @@ namespace OthelloGUI
         {
             PlayerType player = gameState.GameGrid[row, col];
             imageControls[row, col].Source = imageSources[player];
-            PlayerImage.Source = imageSources[gameState.CurrentPlayer];
             RestartButton.IsEnabled = true;
         }
 
-        private void UpdatePoints(int bPoints, int wPoints)
+        private void UpdateGUI(int bPoints, int wPoints)
         {
             BlackPoints.Content = bPoints;
             WhitePoints.Content = wPoints;
+            if(gameState.CurrentPlayer == PlayerType.Black)
+            {
+                PlayerImage.Source = imageSources[PlayerType.White];
+            }
+            else
+            {
+                PlayerImage.Source = imageSources[PlayerType.Black];
+            }
+
         }
 
+        // Päivittää käyttöliittymän pisteet ja nykyisen pelaajan vastaamaan pelin nykyistä tilaa
         private void UpdateCoordinates(int bPoints, int wPoints)
         {
             xCoordinate.Content = wPoints + 1;
@@ -68,6 +81,27 @@ namespace OthelloGUI
             WinnerScreen.Visibility = Visibility.Visible;
             WinnerImage.Visibility = Visibility.Visible;
             WinnerText.Visibility = Visibility.Visible;
+            WinnerImage.Source = imageSources[player];
+        }
+
+        private void OnTieGame()
+        {
+            WinnerScreen.Visibility = Visibility.Visible;
+            WinnerImage.Visibility = Visibility.Visible;
+            TieText.Visibility = Visibility.Visible;
+            WinnerImage.Source = Tie;
+        }
+
+        private void ChangeImage()
+        {
+            if (gameState.CurrentPlayer == PlayerType.Black)
+            {
+                PlayerImage.Source = imageSources[PlayerType.White];
+            }
+            else
+            {
+                PlayerImage.Source = imageSources[PlayerType.Black];
+            }
         }
 
         // Palauttaa pelilaudan visuaaliset elementit pelin alkutilaan.
@@ -76,6 +110,7 @@ namespace OthelloGUI
             WinnerScreen.Visibility = Visibility.Hidden;
             WinnerImage.Visibility = Visibility.Hidden;
             WinnerText.Visibility = Visibility.Hidden;
+            TieText.Visibility = Visibility.Hidden;
             RestartButton.IsEnabled = false;
 
             for (int row = 0; row < 8; row++)

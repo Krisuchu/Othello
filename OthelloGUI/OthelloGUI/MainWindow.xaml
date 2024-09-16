@@ -53,7 +53,7 @@
                    VerticalAlignment="Center"/>
             <Label x:Name="BlackPoints"
                    FontSize="40"
-                   Content="2"
+                   Content=""
                    Height="60"
                    Canvas.Left="-40"
                    Canvas.Top="300"
@@ -61,7 +61,7 @@
                    VerticalAlignment="Center"/>
             <Label x:Name="WhitePoints"
                    FontSize="40"
-                   Content="2"
+                   Content=""
                    Height="60"
                    Canvas.Left="-40"
                    Canvas.Top="370"
@@ -121,18 +121,61 @@
                 Height="636"
                 Opacity="0.50"
                 Visibility="Hidden">
-        </Canvas>
-        <TextBlock x:Name="WinnerText"
-                   FontSize="60"
+
+            <TextBlock x:Name="WinnerText"
+                   FontSize="62"
                    Text="Winner:"
                    Height="80"
                    Visibility="Hidden"
-                   Margin="210,0,280,0"/>
+                   Canvas.Left="172"
+                   Canvas.Top="277"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center" Width="229">
+                <TextBlock.Effect>
+                    <DropShadowEffect
+                        Color="Black"
+                        Direction="320"
+                        ShadowDepth="7"
+                        BlurRadius="8"
+                        Opacity="0.6"/>
+                </TextBlock.Effect>
+            </TextBlock>
+
+            <TextBlock x:Name="TieText"
+                   FontSize="58"
+                   Text="It's a Tie!"
+                   Visibility="Hidden"
+                   Canvas.Left="164"
+                   Canvas.Top="283" HorizontalAlignment="Left" VerticalAlignment="Center" Width="237">
+                <TextBlock.Effect>
+                    <DropShadowEffect
+                        Color="Black"
+                        Direction="320"
+                        ShadowDepth="7"
+                        BlurRadius="8"
+                        Opacity="0.6"/>
+                </TextBlock.Effect>
+            </TextBlock>
+
+        </Canvas>
         <Image x:Name="WinnerImage"
                 Height="60"
+                Opacity="0.80"
                 Source="Assets/Othello chip Black.png"
                 Visibility="Hidden"
-                Margin="420,0,200,0"/>
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+                Margin="435,305,0,0">
+            <Image.Effect>
+                <DropShadowEffect
+                        Color="Black"
+                        Direction="320"
+                        ShadowDepth="7"
+                        BlurRadius="8"
+                        Opacity="0.6"
+                    />
+            </Image.Effect>
+        </Image>
 
 
 

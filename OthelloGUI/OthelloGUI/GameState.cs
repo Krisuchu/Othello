@@ -6,12 +6,24 @@ namespace OthelloGUI
 {
     public class GameState
     {
-        public PlayerType[,] GameGrid { get; private set; }
+        public PlayerType[,] GameGrid { get; private set; } = new PlayerType[8, 8];
         public PlayerType CurrentPlayer { get; private set; }
+
+        // Tietorakenne sisältää siirron koordinaatit ja niihin liittyvät käännettävät nappulat.
+        // Tietorakenteeseen tallennetaan tehtävän siirron koordinaatti ja tähän siirtoon sidonnaisten käännettävien nappien koordinaatit.
+        public Dictionary<Tuple<int, int>, List<Tuple<int, int>>> PossibleMoves = new Dictionary<Tuple<int, int>, List<Tuple<int, int>>>();
+
+        // Tietorakenteeseen lisätään ne napit, jotka tullaan kääntämään.
         public List<Tuple<int, int>> Discs = new List<Tuple<int, int>>();
+
+        // Tietorakennetta käytetään peräkkäisten vastustajan nappien tarkasteluun, 
+        // kun halutaan selvittää, käännetäänkö vastustajan nappeja tiettyyn suuntaan edetessä.
+        // Tietorakenteeseen tallennetut napit lisätään tietorakenteeseen Discs,
+        // mikäli nämä napit tullaan kääntämään.
         public List<Tuple<int, int>> Opponents = new List<Tuple<int, int>>();
-        Player Black = new Player(PlayerType.Black);
-        Player White = new Player(PlayerType.White);
+
+        public Player Black = new Player(PlayerType.Black);
+        public Player White = new Player(PlayerType.White);
         public int Turns { get; private set; }
         public bool GameOver { get; private set; }
         
@@ -19,52 +31,123 @@ namespace OthelloGUI
         // Action määrittää toiminnon, jota voidaan käyttää kaikkialla ohjelmassa 
         // "tilaamalla" se, jonka jälkeen tilaavassa osassa ohjelmaa voidaan suorittaa toimintoja.
         public event Action<int, int>? MoveMade;
-        public event Action<int, int>? UpdatePoints;
-        public event Action<int, int>? Coordinates;
         public event Action? GameRestarted;
         public event Action<PlayerType>? GameEnded;
+        public event Action<int, int>? UpdateGUI;
+        public event Action<int, int>? Coordinates;
+        public event Action? TieGame;
+        public event Action? ChangePlayerImage;
 
         // Funktio luo Othello-pelilaudan alkutilanteen
         public GameState()
         {
+            InitializeGame();
+        }
+
+        private void InitializeGame()
+        {
+            // Luodaan uusi pelilauta, jotta vanhalle pelilaudalle tehdyt siirrot
+            // eivät ole edelleen voimassa. Uuden pelilaudan luonti hankkiutuu automaattisesti
+            // eroon vanhasta, mikäli sitä ei olla tallennettu mihinkään.
             GameGrid = new PlayerType[8, 8];
+
             GameGrid[3, 3] = PlayerType.White;
             GameGrid[4, 4] = PlayerType.White;
             GameGrid[3, 4] = PlayerType.Black;
             GameGrid[4, 3] = PlayerType.Black;
             CurrentPlayer = PlayerType.Black;
+            Black.Points = 2;
+            White.Points = 2;
             Turns = 0;
             GameOver = false;
+            FindPossibleMoves();
+            UpdateGUI?.Invoke(Black.Points, White.Points);
         }
 
-        // Funktio tarkastaa, onko tehtävä siirto laillinen
+        // Funktio palauttaa pelilaudan alkuperäiseen tilaansa
+        public void Reset()
+        {
+            PossibleMoves.Clear();
+            Opponents.Clear();
+            Discs.Clear();
+            InitializeGame();
+            GameRestarted?.Invoke();
+        }
+
+        // Funktio tarkastaa, löytyykö sallittujen siirtojen joukosta klikattu koordinaatti
         private bool IsLegalMove(int r, int c)
         {
             Coordinates?.Invoke(r, c);
-            if (GameGrid[r, c] != PlayerType.None)
+            var coordinates = new Tuple<int, int>(r, c);
+            if (PossibleMoves.ContainsKey(coordinates))
             {
-                return false;
+                return true;
             }
             else
             {
-                TurnedDiscs(r, c);
+                return false;
+            }
+        }
 
-                // Siirto on laillinen, jos tämä siirto aiheuttaa vastustajan nappien kääntymisen.
-                // Disc.Count laskee käännettävien nappuloiden määrän.
-                return Discs.Count > 0;
+        static private bool IsInsideBoard(int row, int col)
+        {
+            return row >= 0 && row < 8 && col >= 0 && col < 8;
+        }
+
+        // Funktio vaihtaa vuorossa olevan pelaajan
+        private void SwitchPlayer()
+        {
+            PossibleMoves.Clear();
+            if(CurrentPlayer == PlayerType.Black)
+            {
+                CurrentPlayer = PlayerType.White;
+                FindPossibleMoves();
+            }
+            else
+            {
+                CurrentPlayer = PlayerType.Black;
+                FindPossibleMoves();
+            }
+            if(PossibleMoves.Count == 0)
+            {
+                ChangePlayerImage?.Invoke();
+                SwitchPlayer();
+            }
+        }
+
+        private void FindPossibleMoves()
+        {
+            for(int y = 0; y < 8; y++)
+            {
+                for(int x = 0; x < 8; x++)
+                {
+                    if (GameGrid[x, y] == PlayerType.None)
+                    {
+                        ScanDirections(x, y);
+                        if (Discs.Count > 0)
+                        {
+                            var coordinates = new Tuple<int, int>(x, y);
+                            // Tärkeä määritellä "new", koska ilman tätä sanakirjaan tallennetaan kopio
+                            // listasta. Kun lista tyyhjennetään seuraavalla rivillä, lähtevät sen tiedot myös sanakirjasta.
+                            // Ei siis voi tehdä näin: PossibleMoves[coordinates] = Discs!!!
+                            PossibleMoves[coordinates] = new List<Tuple<int, int>>(Discs);
+                            Discs.Clear();
+                        }
+                    }
+                }
             }
         }
 
         // Funktio käy läpi kaikki mahdolliset suunnat klikatusta ruudusta katsottuna,
         // jotta DiscNumbers-funktio voi tallentaa tiedon käännettävistä pelinappuloista.
-        private void TurnedDiscs(int row, int col)
+        private void ScanDirections(int row, int col)
         {
-            for(int r = -1; r <= 1; r++)
+            for (int r = -1; r <= 1; r++)
             {
-                for(int c = -1; c <= 1; c++)
+                for (int c = -1; c <= 1; c++)
                 {
                     // Poisluetaan tarkasteltavasta 3x3 ruudukosta se ruutu, jossa asettamamme nappi on
-                    if(r == 0 && c == 0)
+                    if (r == 0 && c == 0)
                     {
                         continue;
                     }
@@ -83,7 +166,7 @@ namespace OthelloGUI
             int r = row + x;
             int c = col + y;
             bool areFlippedTokens = false;
-            
+
             while (IsInsideBoard(r, c) && GameGrid[r, c] != PlayerType.None)
             {
                 // Onko seuraava nappula edelleen vastustajan värinen liikuttaessa kyseiseen suuntaan
@@ -114,25 +197,6 @@ namespace OthelloGUI
                 }
             }
             Opponents.Clear();
-        }
-
-        static private bool IsInsideBoard(int row, int col)
-        {
-            return row >= 0 && row < 8 && col >= 0 && col < 8;
-        }
-
-
-        // Funktio vaihtaa vuorossa olevan pelaajan
-        private void SwitchPlayer()
-        {
-            if(CurrentPlayer == PlayerType.Black)
-            {
-                CurrentPlayer = PlayerType.White;
-            }
-            else
-            {
-                CurrentPlayer = PlayerType.Black;
-            }
         }
 
         // Funktio tarkastaa, onko peli syytä lopettaa eri tilanteissa
@@ -167,9 +231,11 @@ namespace OthelloGUI
                 White.Points++;
             }
 
-            // Käydään läpi kaikki pelilaudalla muutettavat nappulat ja
-            // muokataan pelin pistetilannetta sen mukaan.
-            foreach(var disc in Discs)
+            // Etsitään sanakirjasta avainta (koordinaattia) vastaava lista kyseisen
+            // koordinaatin käännettävistä napuloista ja käännetään nappulat.
+            var key = new Tuple<int, int>(r, c);
+            var DiscList = PossibleMoves[key];
+            foreach(var disc in DiscList)
             {
                 GameGrid[disc.Item1, disc.Item2] = CurrentPlayer;
                 if(CurrentPlayer == PlayerType.Black)
@@ -184,49 +250,36 @@ namespace OthelloGUI
                 }
             }
 
-            // Jos peli päättyy, suoritetaan vain viimeinen siirto GUI:n puolella
+            // Tehdään siirto graafisen käyttöliittymän puolella sekä käännetään
+            // käännettävät pelinappulat. Lisäksi päivitetään pelin pistetilanne.
+            MoveMade?.Invoke(r, c);
+            foreach (var disc in DiscList)
+            {
+                MoveMade?.Invoke(disc.Item1, disc.Item2);
+            }
+            UpdateGUI?.Invoke(Black.Points, White.Points);
+
+            // Jos peli päättyy, siirrytään pelin lopetusruutuun. Toisessa tilanteessa
+            // vaihdetaan aktiivista pelaajaa.
             if (IsGameOver())
             {
-                MoveMade?.Invoke(r, c);
-                foreach (var disc in Discs)
+                if(Black.Points == White.Points)
                 {
-                    MoveMade?.Invoke(disc.Item1, disc.Item2);
+                    TieGame?.Invoke();
                 }
-                GameEnded?.Invoke(CurrentPlayer);
+                else if(Black.Points > White.Points)
+                {
+                    GameEnded?.Invoke(PlayerType.Black);
+                }
+                else
+                {
+                    GameEnded?.Invoke(PlayerType.White);
+                }
             }
-
-            // Jos peli ei pääty, suoritetaan siirto ja vaihdetaan aktiivinen pelaaja GUI:n puolella
             else
             {
                 SwitchPlayer();
-                MoveMade?.Invoke(r, c);
-                
-                foreach (var disc in Discs)
-                {
-                    MoveMade?.Invoke(disc.Item1, disc.Item2);
-                }
             }
-            UpdatePoints?.Invoke(Black.Points, White.Points);
-            Discs.Clear();
-        }
-
-        // Funktio palauttaa pelilaudan alkuperäiseen tilaansa
-        public void Reset()
-        {
-            Opponents.Clear();
-            Discs.Clear();
-            GameGrid = new PlayerType[8, 8];
-            GameGrid[3, 3] = PlayerType.White;
-            GameGrid[4, 4] = PlayerType.White;
-            GameGrid[3, 4] = PlayerType.Black;
-            GameGrid[4, 3] = PlayerType.Black;
-            Black.Points = 2;
-            White.Points = 2;
-            CurrentPlayer = PlayerType.Black;
-            Turns = 0;
-            GameOver = false;
-            GameRestarted?.Invoke();
-            UpdatePoints?.Invoke(Black.Points, White.Points);
         }
     }
 }

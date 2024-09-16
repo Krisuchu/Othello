@@ -9,12 +9,14 @@
 
   <ItemGroup>
     <None Remove="Assets\Othello chip black.png" />
+    <None Remove="Assets\Othello chip tie.png" />
     <None Remove="Assets\Othello chip white.png" />
     <None Remove="Assets\Othello Gameboard.png" />
   </ItemGroup>
 
   <ItemGroup>
     <Resource Include="Assets\Othello chip black.png" />
+    <Resource Include="Assets\Othello chip tie.png" />
     <Resource Include="Assets\Othello chip white.png" />
     <Resource Include="Assets\Othello Gameboard.png" />
   </ItemGroup>
